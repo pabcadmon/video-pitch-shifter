@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Pitch Shifter</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #3366ff;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="file"], input[type="number"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #3366ff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2547cc;
+        }
+
+        #downloadLink {
+            display: none;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #downloadLink:hover {
+            background-color: #218838;
+        }
+
+        /* Spinner Styles */
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3366ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Hide Spinner Initially */
+        #loading {
+            display: none;
+        }
+    </style>
+    <script>
+        async function processVideo(event) {
+            event.preventDefault();
+
+            // Get the submit button and the loading spinner
+            const submitButton = document.getElementById('submitBtn');
+            const loadingSpinner = document.getElementById('loading');
+
+            // Disable the button and show the loading spinner
+            submitButton.disabled = true;
+            submitButton.value = 'Processing...';
+            loadingSpinner.style.display = 'inline-block';
+
+            // Prepare form data
+            const formData = new FormData(document.getElementById('videoForm'));
+
+            // Send form data to process endpoint
+            const response = await fetch('/process/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            // Restore the submit button and hide the loading spinner
+            submitButton.disabled = false;
+            submitButton.value = 'Process Video';
+            loadingSpinner.style.display = 'none';
+
+            // Display the download link if processing was successful
+            if (result.status === 'success') {
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = result.download_url;
+                downloadLink.style.display = 'block';
+                downloadLink.innerText = 'Download Processed Video';
+            } else {
+                alert('An error occurred while processing the video.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Video Pitch Shifter</h1>
+        <form id="videoForm" onsubmit="processVideo(event)" enctype="multipart/form-data">
+            <label for="file">Upload Video:</label>
+            <input type="file" name="file" id="file" required>
+            <label for="shift">Shift Semitones:</label>
+            <input type="number" name="shift" id="shift" step="1" value="0" required>
+            <input type="submit" id="submitBtn" value="Process Video">
+            <span id="loading" class="spinner"></span>
+        </form>
+        <a id="downloadLink" href="" download>Download Processed Video</a>
+    </div>
+</body>
+</html>

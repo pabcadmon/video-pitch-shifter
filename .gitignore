@@ -1,0 +1,19 @@
+# Ignore all Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore environment files or folders
+venv/
+.env
+
+# Ignore specific file extensions
+*.log
+*.bak
+
+# Ignore a specific file
+config.yaml
+
+# Ignore an entire directory
+build/
+dist/
+.venv/
